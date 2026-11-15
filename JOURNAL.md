@@ -4,6 +4,36 @@ For the people and agents working on this repo. `README.md` holds the design: th
 
 Newest entry first. Add a dated entry when something is decided or ruled out. Don't rewrite old entries; correct them in a new one. Say how each claim was checked: a run, a test, a paper read, or only an argument.
 
+## 2026-11-15: text-report controls prepared, not executed
+
+Ajit's follow-up is packaged on `codex/text-report-controls`, based on Elliott's
+`codex/t4-thinking-pilot` at `9d9fffe`, including the forced-thinking EOS fix.
+`scripts/run_text_controls.sh` is the entrypoint; `scripts/README.md` has exact
+4B/T4 and 8B/A100 commands, setup, report reuse and resume instructions.
+
+The pilot compares joint evidence, original reports, reports with conservative
+abstention removal, gold-paragraph reports, the same gold paragraphs together,
+and a composition-oriented orchestrator instruction. Worker reports are frozen
+across conditions and thinking modes. Default cohort: 20 toy hop1 and 30 MuSiQue
+2hop sources, AB/BA, seed 0. Both thinking settings are available; the shell
+commands in the instructions request both. Current thinking/masking launchers
+and core prompts, arms, scorer and decoder are not modified.
+
+Prediction/contrasts, specified before execution: a positive cleaned-minus-raw
+gap would implicate the removed wording; gold-report versus gold-joint isolates
+report framing at matched evidence; alternate-prompt versus raw measures
+instruction sensitivity. Report gains/losses and source-clustered intervals,
+not just aggregate accuracy. The gold annotations identify paragraphs, so this
+does **not** implement an exact-gold-sentence condition. Such a condition needs
+verified sentence spans. The cleanup rule is deliberately incomplete; inspect
+its edit rate and exact removed spans before interpreting a null result.
+
+Checked: source inspection/static review only. Regression tests were added for
+the operator, but **no tests, smoke, benchmark generation, API calls or model
+experiments were executed** when preparing this branch. There are no new results.
+The entrypoint runs the new tests and requires a successful format/cap smoke
+before its full pilot. No machines were provisioned and no messages were sent.
+
 ## 2026-11-15: forced thinking no longer ends a row inside `<think>`
 
 Review finding 6 (11-12): `model.greedy` stopped at the model's end token even inside forced thinking. The row then had no answer, and the scorer, finding no `</think>`, read `\boxed` out of the thinking text. Now an end token inside thinking forces `</think>` and decoding goes on to the answer, the same as when the thinking budget runs out. Rows record it as `think_eos`. Thinking-off arms are unchanged, so no saved row is affected; no forced-thinking arm had been run. Also here: the float16 RoPE test tolerance from the T4 masking run (`f4914e4`), so the real-model tests pass on a T4. Checked: a scripted-token test for the new path and the fast suite. No model run.
